@@ -17,25 +17,28 @@
   </head>
   <body>
     <script type="text/javascript">
-      const Datastore = require('nedb');
-      let db = new Datastore({ filename: 'data/example.db', autoload: true });
+      const Datastore = require(nedb);
+      let db = new Datastore({ filename: 'data/example.txt', autoload: true });
 
-      function showMessage() {
+      /*function showMessage() {
+        // Display a message when the button is pressed
+        alert("1");
         // The string you want to add to the database
         const content = "This is the string I want to store in NeDB.";
-
+        alert("2");
         // Create a document to store the string
         let doc = {
             content: content,
             createdAt: new Date() // You can add additional fields if needed
         };
-
+        alert("3");
         // Insert the document into the database
         db.insert(doc, function (err, newDoc) {
+            alert("6");
             if (err) {
-                console.error("Error inserting into the database:", err);
+                console.error("Error inserting into the database:", err); alert("5");
             } else {
-                console.log("Document inserted successfully:", newDoc);
+                console.log("Document inserted successfully:", newDoc); alert("4");
             }
         });
 
@@ -51,8 +54,6 @@
           // Define the file path
           const filePath = 'data/database.txt';
 
-          // Display a message when the button is pressed
-          alert("Button has been pressed!");
           // Append the string to the file (this will add the string at the end of the file)
           fs.appendFile(filePath, content, (err) => {
               if (err) {
@@ -61,7 +62,30 @@
                   console.log('Content has been appended successfully!');
               }
           });
-      }
+      }*/
+
+      document.getElementById('uploadForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+            alert("01");
+            const fileInput = document.getElementById('fileInput');
+            const file = fileInput.files[0];
+            if (!file) {
+                alert('Please select a file to upload.');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            // Send the file to the backend server
+            const response = await fetch('https://your-backend-url.com/upload', {
+                method: 'POST',
+                body: formData,
+            });
+
+            const result = await response.text();
+            alert(result);
+        });
 
     </script>
     <!-- feed starts -->
@@ -80,13 +104,18 @@
             />
             <input type="text" placeholder="Scrivi qui il tuo post" />
           </div>
-          <button class="tweetBox__tweetButton" onclick="showMessage()">Pubblica</button>
+          <button class="tweetBox__tweetButton" type="submit" /*onclick="showMessage()"*/ >Pubblica</button>
         </form>
       </div>
       <!-- tweetbox ends -->
 
 
       <!-- post starts -->
+      <form id="uploadForm">
+        <input type="file" id="fileInput" />
+        <button type="submit">Upload</button>
+    </form>
+    
       <div class="post">
         <div class="post__avatar">
           <img
