@@ -1,187 +1,131 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Arianna</title>
-    <link rel="stylesheet" href="styles.css" />
-    <link src="index.js"/>
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
-      integrity="sha512-iBBXm8fW90+nuLcSKlbmrPcLa0OT92xO1BIsZ+ywDWZCvqsWgccV3gFoRBv0z+8dLJgyAHIhR35VZc2oM/gI1w=="
-      crossorigin="anonymous"
-    />
-  </head>
-  <body>
-    <script type="text/javascript">
-      const Datastore = require(nedb);
-      let db = new Datastore({ filename: 'data/example.txt', autoload: true });
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Group Splitter</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; }
+        .group { border: 1px solid #ccc; padding: 10px; margin-top: 10px; padding: 10px; }
+        #fightResult { font-size: 1.2em; font-weight: bold; margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <h1>Group Splitter</h1>
+    <label for="groupCount">Number of Groups:</label>
+    <select id="groupCount" onchange="updateGroupNameInputs()">
+        <option value="2">2</option>
+        <option value="4">4</option>
+    </select>
+    <div id="groupNames"></div>
+    <button onclick="splitIntoGroups()">Split into Groups</button>
+    <div id="groups"></div>
+    
+    <h2>Select Groups for Fight</h2>
+    <label for="groupSelect1">Group 1:</label>
+    <select id="groupSelect1"></select>
+    <label for="groupSelect2">Group 2:</label>
+    <select id="groupSelect2"></select>
+    <button onclick="generateFight()">Start a Fight!</button>
+    <div id="fightResult"></div>
+    
+    <script>
+        let names = [];
+        let currentGroups = [];
+        let selectedFighters = new Set();
 
-      /*function showMessage() {
-        // Display a message when the button is pressed
-        alert("1");
-        // The string you want to add to the database
-        const content = "This is the string I want to store in NeDB.";
-        alert("2");
-        // Create a document to store the string
-        let doc = {
-            content: content,
-            createdAt: new Date() // You can add additional fields if needed
-        };
-        alert("3");
-        // Insert the document into the database
-        db.insert(doc, function (err, newDoc) {
-            alert("6");
-            if (err) {
-                console.error("Error inserting into the database:", err); alert("5");
-            } else {
-                console.log("Document inserted successfully:", newDoc); alert("4");
-            }
-        });
-
-
-
-
-
-
-
-          //const fs = require('fs');
-          //const content = 'This is the string I want to append to the file.\n';
-
-          // Define the file path
-          const filePath = 'data/database.txt';
-
-          // Append the string to the file (this will add the string at the end of the file)
-          fs.appendFile(filePath, content, (err) => {
-              if (err) {
-                  console.error('Error appending to file:', err);
-              } else {
-                  console.log('Content has been appended successfully!');
-              }
-          });
-      }*/
-
-      document.getElementById('uploadForm').addEventListener('submit', async function (e) {
-            e.preventDefault();
-            alert("01");
-            const fileInput = document.getElementById('fileInput');
-            const file = fileInput.files[0];
-            if (!file) {
-                alert('Please select a file to upload.');
-                return;
-            }
-
-            const formData = new FormData();
-            formData.append('file', file);
-
-            // Send the file to the backend server
-            const response = await fetch('https://your-backend-url.com/upload', {
-                method: 'POST',
-                body: formData,
+        fetch("/Data/Nomi.txt")
+            .then(response => response.text())
+            .then(text => {
+                names = text.split("\n").map(name => name.trim()).filter(Boolean);
             });
 
-            const result = await response.text();
-            alert(result);
-        });
+        function updateGroupNameInputs() {
+            const groupCount = parseInt(document.getElementById("groupCount").value);
+            const groupNamesContainer = document.getElementById("groupNames");
+            groupNamesContainer.innerHTML = "";
+            
+            for (let i = 0; i < groupCount; i++) {
+                const input = document.createElement("input");
+                input.type = "text";
+                input.placeholder = `Group ${i + 1} Name`;
+                input.id = `groupName${i}`;
+                groupNamesContainer.appendChild(input);
+                groupNamesContainer.appendChild(document.createElement("br"));
+            }
+        }
 
-    </script>
-    <!-- feed starts -->
-    <div class="feed">
-      <div class="feed__header">
-        <h2>Home</h2>
-      </div>
-
-      <!-- tweetbox starts -->
-      <div class="tweetBox">
-        <form>
-          <div class="tweetbox__input">
-            <img
-              src="https://i.pinimg.com/originals/a6/58/32/a65832155622ac173337874f02b218fb.png"
-              alt=""
-            />
-            <input type="text" placeholder="Scrivi qui il tuo post" />
-          </div>
-          <button class="tweetBox__tweetButton" type="submit" /*onclick="showMessage()"*/ >Pubblica</button>
-        </form>
-      </div>
-      <!-- tweetbox ends -->
-
-
-      <!-- post starts -->
-      <form id="uploadForm">
-        <input type="file" id="fileInput" />
-        <button type="submit">Upload</button>
-    </form>
-    
-      <div class="post">
-        <div class="post__avatar">
-          <img
-            src="https://i.pinimg.com/originals/a6/58/32/a65832155622ac173337874f02b218fb.png"
-            alt=""
-          />
-        </div>
-
-        <div class="post__body">
-          <div class="post__header">
-            <div class="post__headerText">
-              <h3>
+        function splitIntoGroups() {
+            const groupCount = parseInt(document.getElementById("groupCount").value);
+            if (names.length === 0) {
+                alert("No names loaded. Please check your names.txt file.");
+                return;
+            }
+            
+            const shuffled = [...names].sort(() => Math.random() - 0.5);
+            currentGroups = Array.from({ length: groupCount }, () => []);
+            shuffled.forEach((name, index) => {
+                currentGroups[index % groupCount].push(name);
+            });
+            selectedFighters.clear();
+            
+            const groupsContainer = document.getElementById("groups");
+            groupsContainer.innerHTML = "";
+            const groupSelect1 = document.getElementById("groupSelect1");
+            const groupSelect2 = document.getElementById("groupSelect2");
+            groupSelect1.innerHTML = "";
+            groupSelect2.innerHTML = "";
+            
+            currentGroups.forEach((group, i) => {
+                const groupDiv = document.createElement("div");
+                groupDiv.className = "group";
+                const groupNameInput = document.getElementById(`groupName${i}`);
+                const groupName = groupNameInput && groupNameInput.value.trim() ? groupNameInput.value.trim() : `Group ${i + 1}`;
                 
-                <!--<span class="post__headerSpecial"
-                  ><span class="material-icons post__badge"> verified </span>@somanathg</span
-                >-->
-              </h3>
-            </div>
-            <div class="post__headerDescription">
-              <p>Lorem ipsum, dolor sit amet consectetur adipisicing elit.</p>
-            </div>
-          </div>
-          <img
-            src="https://www.focus2move.com/wp-content/uploads/2020/01/Tesla-Roadster-2020-1024-03.jpg"
-            alt=""
-          />
-          <div class="post__footer">
-            <span class="material-icons"> repeat </span>
-            <span class="material-icons"> favorite_border </span>
-            <span class="material-icons"> publish </span>
-          </div>
-        </div>
-      </div>
-      <!-- post ends -->
-    </div>
-    <!-- feed ends -->
+                let groupList = "<ul>";
+                group.forEach(member => {
+                    groupList += `<li>${member}</li>`;
+                });
+                groupList += "</ul>";
+                
+                groupDiv.innerHTML = `<h2>${groupName}</h2>${groupList}`;
+                groupsContainer.appendChild(groupDiv);
+                
+                let option1 = document.createElement("option");
+                let option2 = document.createElement("option");
+                option1.value = i;
+                option2.value = i;
+                option1.textContent = groupName;
+                option2.textContent = groupName;
+                groupSelect1.appendChild(option1);
+                groupSelect2.appendChild(option2);
+            });
+        }
 
-    <!-- widgets starts -->
-    <div class="widgets">
-      <div class="widgets__input">
-        <span class="material-icons widgets__searchIcon"> search </span>
-        <input type="text" placeholder="Search Twitter" />
-      </div>
-
-      <div class="widgets__widgetContainer">
-        <h2>What's happening?</h2>
-        <blockquote class="twitter-tweet">
-          <p lang="en" dir="ltr">
-            Sunsets don&#39;t get much better than this one over
-            <a href="https://twitter.com/GrandTetonNPS?ref_src=twsrc%5Etfw">@GrandTetonNPS</a>.
-            <a href="https://twitter.com/hashtag/nature?src=hash&amp;ref_src=twsrc%5Etfw"
-              >#nature</a
-            >
-            <a href="https://twitter.com/hashtag/sunset?src=hash&amp;ref_src=twsrc%5Etfw"
-              >#sunset</a
-            >
-            <a href="http://t.co/YuKy2rcjyU">pic.twitter.com/YuKy2rcjyU</a>
-          </p>
-          &mdash; US Department of the Interior (@Interior)
-          <a href="https://twitter.com/Interior/status/463440424141459456?ref_src=twsrc%5Etfw"
-            >May 5, 2014</a
-          >
-        </blockquote>
-        <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
-      </div>
-    </div>
-    <!-- widgets ends -->
-  </body>
+        function generateFight() {
+            const groupIndex1 = parseInt(document.getElementById("groupSelect1").value);
+            const groupIndex2 = parseInt(document.getElementById("groupSelect2").value);
+            if (groupIndex1 === groupIndex2) {
+                alert("Select two different groups!");
+                return;
+            }
+            
+            let availableFighters1 = currentGroups[groupIndex1].filter(name => !selectedFighters.has(name));
+            let availableFighters2 = currentGroups[groupIndex2].filter(name => !selectedFighters.has(name));
+            
+            if (availableFighters1.length === 0 || availableFighters2.length === 0) {
+                alert("Not enough available fighters in selected groups!");
+                return;
+            }
+            
+            let fighter1 = availableFighters1[Math.floor(Math.random() * availableFighters1.length)];
+            let fighter2 = availableFighters2[Math.floor(Math.random() * availableFighters2.length)];
+            selectedFighters.add(fighter1);
+            selectedFighters.add(fighter2);
+            
+            const fightResult = document.getElementById("fightResult");
+            fightResult.innerText = `${fighter1} VS ${fighter2} - Who will win?`;
+        }
+    </script>
+</body>
 </html>
